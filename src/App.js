@@ -260,59 +260,89 @@ function App() {
 
 </section>
 )}
-{page==="about" &&(
-      <section id="about" className="about">
-  <div className="about-top">
-    <div className="about-text">
-      <p className="about-tag">ABOUT US</p>
+{page === "about" && (
+  <section id="about" className="about">
+    <div className="about-top">
+      <div className="about-text">
+        <p className="about-tag">ABOUT US</p>
 
-      <h2>Ventara elevates indoor comfort through smart, reliable HVAC services.</h2>
+        <h2>Ventara elevates indoor comfort through smart, reliable HVAC services.</h2>
 
-      <p>
-        We combine technical expertise with clean, professional workmanship
-        to deliver HVAC solutions built to last. From installation and repair to
-        preventive maintenance, we are committed to quality, safety, and
-        customer satisfaction.
-      </p>
-    
+        <p>
+          Ventara Engineering Services provides reliable HVAC and engineering solutions for residential, commercial, and industrial clients. We
+          combine technical expertise with professional workmanship to deliver quality, safety, and lasting customer satisfaction.
+        </p>
+      </div>
+
+      <div className="about-image">
+        <img src="/about-image.jpg" alt="Ventara Engineering Services" />
+      </div>
     </div>
-  </div>
 
-  <div className="about-grid">
-    <div className="about-card">
-  <div className="icon">📜</div>
-  <h3>Registered Business</h3>
-  <p>Operating legally and professionally with proper business registrations.</p>
 
-  <ul className="about-list">
-    <li>✅DTI Registered</li>
-    <li>✅BIR Registered</li>
-    <li>✅PhilGEPS Registered</li>
-    <li>✅Mayor's Permit</li>
-  </ul>
-</div>
+    <div className="section-divider">
+      <span>OUR MISSION & VISION</span>
+    </div>
 
-<div className="about-card">
-  <div className="icon">🛡️</div>
-  <h3>Licensed & Insured</h3>
-  <p>Providing safe, reliable, and trusted HVAC and engineering services.</p>
-</div>
+    <div className="about-mission-vision">
+      <div className="mission-card">
+        <h3>🎯 Our Mission</h3>
+        <p>
+          At Ventara Engineering Services, our mission is to provide cost-friendly yet highly effective HVAC and engineering solutions
+          without compromising quality, safety, or professionalism.
+        </p>
+        <p>
+          We are committed to delivering reliable workmanship, exceptional
+          customer service, and long-lasting comfort for every home and business.
+        </p>
+      </div>
 
-<div className="about-card">
-  <div className="icon">👷</div>
-  <h3>Certified Technicians</h3>
-  <p>Handled by trained professionals with HVAC service experience.</p>
-</div>
+      <div className="vision-card">
+        <h3>🌍 Our Vision</h3>
+        <p>
+          To become one of Philippines's most trusted HVAC and engineering service
+          providers by delivering innovative, affordable, and sustainable
+          solutions.
+        </p>
+        <p>
+          We aim to build lasting relationships through excellence, integrity,
+          and customer satisfaction.
+        </p>
+      </div>
+    </div>
 
-<div className="about-card">
-  <div className="icon">✅</div>
-  <h3>Quality Compliant</h3>
-  <p>Following proper safety standards, workmanship, and customer care.</p>
-</div>
+    <div className="section-divider">
+      <span>WHY CHOOSE VENTARA</span>
+    </div>
 
-</div>
-</section>
-)}     
+    <div className="about-grid">
+      <div className="about-card">
+        <div className="icon">📜</div>
+        <h3>Registered Business</h3>
+        <p>Operating legally and professionally with proper business registrations.</p>
+      </div>
+
+      <div className="about-card">
+        <div className="icon">🛡️</div>
+        <h3>Licensed & Insured</h3>
+        <p>Providing safe, reliable, and trusted HVAC and engineering services.</p>
+      </div>
+
+      <div className="about-card">
+        <div className="icon">👷</div>
+        <h3>Certified Technicians</h3>
+        <p>Handled by trained professionals with HVAC service experience.</p>
+      </div>
+
+      <div className="about-card">
+        <div className="icon">💰</div>
+        <h3>Cost-Friendly Service</h3>
+        <p>Affordable solutions without compromising quality and workmanship.</p>
+      </div>
+    </div>
+  </section>
+)}
+   
 {page==="booking" && (
    <section id="booking" className="booking">
 
@@ -372,7 +402,14 @@ We're here to provide reliable HVAC and engineering services you can count on.
 <input type="text" placeholder="Location / Address"/>
 
 <select>
-<option>Select Service</option>
+<option value="">Select Services</option>
+  <option>Mechanical & Electrical Design</option>
+  <option>Aircon Supply & Installation</option>
+  <option>Aircon Cleaning</option>
+   <option>Aircon Repair & Troubleshooting</option>
+   <option>Electrical Wiring & Installation</option>
+   <option>Preventive Maintenance</option>
+
 </select>
 
 <select>
