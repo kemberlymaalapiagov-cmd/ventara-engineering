@@ -4,8 +4,79 @@ import "./App.css";
 function App() {
   const [page, setPage]=useState("home");
   const [menuOpen,setMenuOpen]=useState(false);
+  const [bookingData,setBookingData]=useState({
+    fullName:"",
+    phone:"",
+    email:"",
+    address:"",
+    service:"",
+    propertyType:"",
+    preferredDate:"",
+    preferredTime:"",
+    details:""
+  });
+  const [bookingSubmitting, setBookingSubmitting]=useState(false);
+  const [bookingSuccess, setBookingSuccess]=useState(false);
+  const [bookingError, setBookingError]=useState("");
 
-  return (
+  const handleBookingChange=(event)=>{
+    const {name,value}=event.target;
+    setBookingData((previousData)=>({
+      ...previousData,
+      [name]:value
+    }));
+  };
+
+  const handleBookingSubmit = async (event) => {
+  event.preventDefault();
+
+  setBookingSubmitting(true);
+  setBookingSuccess(false);
+  setBookingError("");
+
+  const bookingWebAppUrl =
+    "https://script.google.com/macros/s/AKfycbwgNjxVPal5SOhj_QZuU7kUFU69JlpkG3XysZCAHbKBAYxfZXqJ1Og4FhSA6wg4PPQ/exec";
+
+  try {
+    const formData = new URLSearchParams();
+
+    Object.entries(bookingData).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    await fetch(bookingWebAppUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: formData.toString()
+    });
+
+    setBookingSuccess(true);
+
+    setBookingData({
+      fullName: "",
+      phone: "",
+      email: "",
+      address: "",
+      service: "",
+      propertyType: "",
+      preferredDate: "",
+      preferredTime: "",
+      details: ""
+    });
+  } catch (error) {
+    console.error("Booking submission failed:", error);
+
+    setBookingError(
+      "We could not submit your booking. Please call or email Ventara directly."
+    );
+  } finally {
+    setBookingSubmitting(false);
+  }
+};
+    return (
     <div>
       <nav className="navbar">
   <img src="/logo.jpg" alt="Ventara Logo" className="logo" />
@@ -343,161 +414,226 @@ function App() {
   </section>
 )}
    
-{page==="booking" && (
-   <section id="booking" className="booking">
+{page === "booking" && (
+  <section id="booking" className="booking">
+    <div className="booking-container">
 
-<div className="booking-container">
+      <div className="booking-left">
+        <h2>
+          Schedule an <span>Appointment</span>
+        </h2>
 
-<div className="booking-left">
+        <p>
+          Fill out the form and our team will contact you to confirm your
+          booking. We provide reliable HVAC and engineering services you can
+          count on.
+        </p>
 
-<h2>
-Schedule an <span>Appointment</span>
-</h2>
+        <div className="booking-feature">
+          <div className="booking-icon">📅</div>
 
-<p>
-Fill out the form and our team will contact you to confirm your booking.
-We're here to provide reliable HVAC and engineering services you can count on.
-</p>
+          <div>
+            <h4>Easy Scheduling</h4>
+            <p>Choose your preferred date and time.</p>
+          </div>
+        </div>
 
-<div className="booking-feature">
-<div className="booking-icon">📅</div>
-<div>
-<h4>Easy Scheduling</h4>
-<p>Choose your preferred date and time.</p>
-</div>
-</div>
+        <div className="booking-feature">
+          <div className="booking-icon">🛡️</div>
 
-<div className="booking-feature">
-<div className="booking-icon">🛡️</div>
-<div>
-<h4>Trusted Professionals</h4>
-<p>Licensed and experienced technicians.</p>
-</div>
-</div>
+          <div>
+            <h4>Trusted Professionals</h4>
+            <p>Experienced technicians focused on safe, quality service.</p>
+          </div>
+        </div>
 
-<div className="booking-feature">
-<div className="booking-icon">⚡</div>
-<div>
-<h4>Fast Response</h4>
-<p>Quick confirmation and quality service.</p>
-</div>
-</div>
+        <div className="booking-feature">
+          <div className="booking-icon">⚡</div>
 
-</div>
+          <div>
+            <h4>Fast Response</h4>
+            <p>Quick confirmation and professional assistance.</p>
+          </div>
+        </div>
+      </div>
 
-<div className="booking-form">
+      <div className="booking-form">
+        {!bookingSuccess ? (
+          <>
+            <h3>Booking Form</h3>
 
-<h3>Booking Form</h3>
+            <form onSubmit={handleBookingSubmit}>
+              <div className="booking-grid">
 
-<form>
+                <input
+                  type="text"
+                  name="fullName"
+                  placeholder="Full Name"
+                  value={bookingData.fullName}
+                  onChange={handleBookingChange}
+                  required
+                />
 
-<div className="booking-grid">
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone Number"
+                  value={bookingData.phone}
+                  onChange={handleBookingChange}
+                  required
+                />
 
-<input type="text" placeholder="Full Name"/>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={bookingData.email}
+                  onChange={handleBookingChange}
+                  required
+                />
 
-<input type="tel" placeholder="Phone Number"/>
+                <input
+                  type="text"
+                  name="address"
+                  placeholder="Location / Address"
+                  value={bookingData.address}
+                  onChange={handleBookingChange}
+                  required
+                />
 
-<input type="email" placeholder="Email Address"/>
+                <select
+                  name="service"
+                  value={bookingData.service}
+                  onChange={handleBookingChange}
+                  required
+                >
+                  <option value="" disabled>
+                    Select Service
+                  </option>
 
-<input type="text" placeholder="Location / Address"/>
+                  <option value="Mechanical & Electrical Design">
+                    Mechanical & Electrical Design
+                  </option>
 
-<select>
-<option value="">Select Services</option>
-  <option>Mechanical & Electrical Design</option>
-  <option>Aircon Supply & Installation</option>
-  <option>Aircon Cleaning</option>
-   <option>Aircon Repair & Troubleshooting</option>
-   <option>Electrical Wiring & Installation</option>
-   <option>Preventive Maintenance</option>
+                  <option value="Aircon Supply & Installation">
+                    Aircon Supply & Installation
+                  </option>
 
-</select>
+                  <option value="Aircon Cleaning">
+                    Aircon Cleaning
+                  </option>
 
-<select>
-<option>Property Type</option>
-<option>Residential</option>
-<option>Commercial</option>
-<option>Industrial</option>
-</select>
+                  <option value="Aircon Repair & Troubleshooting">
+                    Aircon Repair & Troubleshooting
+                  </option>
 
-<input type="date"/>
+                  <option value="Electrical Wiring & Installation">
+                    Electrical Wiring & Installation
+                  </option>
 
-<input type="time"/>
+                  <option value="Preventive Maintenance">
+                    Preventive Maintenance
+                  </option>
+                </select>
 
-</div>
+                <select
+                  name="propertyType"
+                  value={bookingData.propertyType}
+                  onChange={handleBookingChange}
+                  required
+                >
+                  <option value="" disabled>
+                    Property Type
+                  </option>
 
-<textarea placeholder="Additional Details"></textarea>
+                  <option value="Residential">Residential</option>
+                  <option value="Commercial">Commercial</option>
+                  <option value="Industrial">Industrial</option>
+                </select>
 
-<button>Book Appointment</button>
+                <input
+                  type="date"
+                  name="preferredDate"
+                  value={bookingData.preferredDate}
+                  onChange={handleBookingChange}
+                  required
+                />
 
-<p className="booking-note">
-🔒 Your information is safe and will never be shared.
-</p>
+                <input
+                  type="time"
+                  name="preferredTime"
+                  value={bookingData.preferredTime}
+                  onChange={handleBookingChange}
+                  required
+                />
+              </div>
 
-</form>
+              <textarea
+                name="details"
+                placeholder="Additional Details"
+                value={bookingData.details}
+                onChange={handleBookingChange}
+              />
 
-</div>
+              <button type="submit" disabled={bookingSubmitting}>
+                {bookingSubmitting
+                  ? "Submitting Booking..."
+                  : "Book Appointment"}
+              </button>
 
-</div>
+              {bookingError && (
+                <p className="booking-error">
+                  {bookingError}
+                </p>
+              )}
 
-</section>
-)}
-{page === "review" && (
-  <section className="review">
-    <div className="section-title">
-      <p>CUSTOMER TESTIMONIALS</p>
-      <h2>What Our Clients Say</h2>
-      <span className="review-subtitle">
-        Real feedback from customers who trust Ventara Engineering Services.
-      </span>
+              <p className="booking-note">
+                🔒 Your information is safe and will only be used to process
+                your service request.
+              </p>
+            </form>
+          </>
+        ) : (
+          <div className="booking-success">
+            <div className="booking-success-icon">✓</div>
+
+            <h3>Thank You!</h3>
+
+            <p className="success-main-message">
+              Your booking request has been received.
+            </p>
+
+            <p>
+              Our Ventara team will contact you shortly to confirm your
+              appointment, service details, preferred date, and time.
+            </p>
+
+            <p className="success-reminder">
+              Please remember that your appointment is not confirmed until our
+              team contacts you.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                setBookingSuccess(false);
+                setPage("home");
+              }}
+            >
+              Return to Home
+            </button>
+
+            <button
+              type="button"
+              className="book-another-btn"
+              onClick={() => setBookingSuccess(false)}
+            >
+              Make Another Booking
+            </button>
+          </div>
+        )}
+      </div>
     </div>
-
-    <div className="testimonial-grid">
-      <div className="testimonial-card">
-        <div className="stars">★★★★★</div>
-        <p>
-          Very professional and reliable service. The technician explained
-          everything clearly and finished the job neatly.
-        </p>
-        <h4>— Maria S.</h4>
-      </div>
-
-      <div className="testimonial-card">
-        <div className="stars">★★★★★</div>
-        <p>
-          Fast response and excellent workmanship. Highly recommended for
-          aircon cleaning and maintenance.
-        </p>
-        <h4>— John D.</h4>
-      </div>
-
-      <div className="testimonial-card">
-        <div className="stars">★★★★★</div>
-        <p>
-          Affordable, clean, and professional. We will definitely book their
-          service again.
-        </p>
-        <h4>— Client Review</h4>
-      </div>
-    </div>
-
-    <form className="review-form">
-      <h3>Leave Your Review</h3>
-
-      <input type="text" placeholder="Your Name" />
-
-      <select>
-        <option>Rate Our Service</option>
-        <option>⭐⭐⭐⭐⭐ Excellent</option>
-        <option>⭐⭐⭐⭐ Very Good</option>
-        <option>⭐⭐⭐ Good</option>
-        <option>⭐⭐ Fair</option>
-        <option>⭐ Poor</option>
-      </select>
-
-      <textarea placeholder="Tell us about your experience..."></textarea>
-
-      <button type="submit">Submit Review</button>
-    </form>
   </section>
 )}
 {page==="faq" && (
