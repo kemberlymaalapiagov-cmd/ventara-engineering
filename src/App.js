@@ -2,80 +2,166 @@ import {useState} from "react";
 import "./App.css";
 
 function App() {
-  const [page, setPage]=useState("home");
-  const [menuOpen,setMenuOpen]=useState(false);
-  const [bookingData,setBookingData]=useState({
-    fullName:"",
-    phone:"",
-    email:"",
-    address:"",
-    service:"",
-    propertyType:"",
-    preferredDate:"",
-    preferredTime:"",
-    details:""
-  });
-  const [bookingSubmitting, setBookingSubmitting]=useState(false);
-  const [bookingSuccess, setBookingSuccess]=useState(false);
-  const [bookingError, setBookingError]=useState("");
+  const [page, setPage] = useState("home");
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleBookingChange=(event)=>{
-    const {name,value}=event.target;
-    setBookingData((previousData)=>({
+  // Same Apps Script URL for bookings and quotes
+  const WEB_APP_URL =
+    "https://script.google.com/macros/s/AKfycbwgNjxVPal5SOhj_QZuU7kUFU69JlpkG3XysZCAHbKBAYxfZXqJ1Og4FhSA6wg4PPQ/exec";
+
+  /* =========================
+     BOOKING FORM
+  ========================= */
+
+  const [bookingData, setBookingData] = useState({
+    fullName: "",
+    phone: "",
+    email: "",
+    address: "",
+    service: "",
+    propertyType: "",
+    preferredDate: "",
+    preferredTime: "",
+    details: ""
+  });
+
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingError, setBookingError] = useState("");
+
+  const handleBookingChange = (event) => {
+    const { name, value } = event.target;
+
+    setBookingData((previousData) => ({
       ...previousData,
-      [name]:value
+      [name]: value
     }));
   };
 
   const handleBookingSubmit = async (event) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  setBookingSubmitting(true);
-  setBookingSuccess(false);
-  setBookingError("");
+    setBookingSubmitting(true);
+    setBookingSuccess(false);
+    setBookingError("");
 
-  const bookingWebAppUrl =
-    "https://script.google.com/macros/s/AKfycbwgNjxVPal5SOhj_QZuU7kUFU69JlpkG3XysZCAHbKBAYxfZXqJ1Og4FhSA6wg4PPQ/exec";
+    try {
+      const formData = new URLSearchParams();
 
-  try {
-    const formData = new URLSearchParams();
+      // Tells Apps Script to use the Bookings sheet
+      formData.append("requestType", "booking");
 
-    Object.entries(bookingData).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+      Object.entries(bookingData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
 
-    await fetch(bookingWebAppUrl, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: formData.toString()
-    });
+      await fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: formData.toString()
+      });
 
-    setBookingSuccess(true);
+      setBookingSuccess(true);
 
-    setBookingData({
-      fullName: "",
-      phone: "",
-      email: "",
-      address: "",
-      service: "",
-      propertyType: "",
-      preferredDate: "",
-      preferredTime: "",
-      details: ""
-    });
-  } catch (error) {
-    console.error("Booking submission failed:", error);
+      setBookingData({
+        fullName: "",
+        phone: "",
+        email: "",
+        address: "",
+        service: "",
+        propertyType: "",
+        preferredDate: "",
+        preferredTime: "",
+        details: ""
+      });
+    } catch (error) {
+      console.error("Booking submission failed:", error);
 
-    setBookingError(
-      "We could not submit your booking. Please call or email Ventara directly."
-    );
-  } finally {
-    setBookingSubmitting(false);
-  }
-};
+      setBookingError(
+        "We could not submit your booking. Please call or email Ventara directly."
+      );
+    } finally {
+      setBookingSubmitting(false);
+    }
+  };
+
+  /* =========================
+     REQUEST A QUOTE FORM
+  ========================= */
+
+  const [quoteData, setQuoteData] = useState({
+    fullName: "",
+    phone: "",
+    email: "",
+    address: "",
+    service: "",
+    propertyType: "",
+    details: ""
+  });
+
+  const [quoteSubmitting, setQuoteSubmitting] = useState(false);
+  const [quoteSuccess, setQuoteSuccess] = useState(false);
+  const [quoteError, setQuoteError] = useState("");
+
+  const handleQuoteChange = (event) => {
+    const { name, value } = event.target;
+
+    setQuoteData((previousData) => ({
+      ...previousData,
+      [name]: value
+    }));
+  };
+
+  const handleQuoteSubmit = async (event) => {
+    event.preventDefault();
+
+    setQuoteSubmitting(true);
+    setQuoteSuccess(false);
+    setQuoteError("");
+
+    try {
+      const formData = new URLSearchParams();
+
+      // Tells Apps Script to use the Quotes sheet
+      formData.append("requestType", "quote");
+
+      Object.entries(quoteData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      await fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: formData.toString()
+      });
+
+      setQuoteSuccess(true);
+
+      setQuoteData({
+        fullName: "",
+        phone: "",
+        email: "",
+        address: "",
+        service: "",
+        propertyType: "",
+        details: ""
+      });
+    } catch (error) {
+      console.error("Quote request submission failed:", error);
+
+      setQuoteError(
+        "We could not submit your quote request. Please call or email Ventara directly."
+      );
+    } finally {
+      setQuoteSubmitting(false);
+    }
+  };
     return (
     <div>
       <nav className="navbar">
@@ -114,17 +200,29 @@ function App() {
           <div className="hero-buttons">
           
             <button 
-            className="primary-btn"
-              onClick={()=>setPage("booking")}
+              type="button"
+              className="primary-btn"
+              onClick={(event)=>{
+                event.preventDefault();
+                setBookingSuccess(false);
+                setBookingError("");
+                setPage("booking"); 
+              }}
               >
               Book Appoinment
               </button>
 
         
             <button 
-            className="secondary-btn"
-            onClick={()=>setPage("requestquote")}
-            >
+              type="button"
+              className="secondary-btn"
+              onClick={(event) => {
+                event.preventDefault();
+                setQuoteSuccess(false);
+                setQuoteError("");
+                setPage("requestquote"); 
+              }}
+              >
               Request A Quote
             </button>
           </div>
@@ -213,88 +311,222 @@ function App() {
   </div>
 </section>
   )}
-  {page==="requestquote" &&(
-<section id="requestquote" className="quote">
+  {page === "requestquote" && (
+  <section id="requestquote" className="quote">
+    <div className="quote-wrapper">
 
-  <div className="quote-wrapper">
+      <div className="quote-left">
+        <p className="quote-tag">REQUEST A QUOTE</p>
 
-    <div className="quote-left">
-      <p className="quote-tag">REQUEST A QUOTE</p>
+        <h2>
+          Get Your <span>Free Estimate</span>
+        </h2>
 
-      <h2>
-        Get Your <span>Free Estimate</span>
-      </h2>
+        <p className="quote-note">
+          Tell us about your project or service needs. Our team will review
+          your request and contact you regarding the estimate and next steps.
+        </p>
 
-      <p className="quote-note">
-        Whether it's a new installation, repair, preventive maintenance,
-        or engineering design, our team is ready to provide a detailed,
-        no-obligation quotation tailored to your project.
-      </p>
+        <div className="quote-benefits">
+          <div className="benefit">
+            <span>✓</span>
+            <p>Free initial quotation</p>
+          </div>
 
-      <div className="quote-benefits">
+          <div className="benefit">
+            <span>✓</span>
+            <p>Professional project assessment</p>
+          </div>
 
-        <div className="benefit">
-          <span>✔</span>
-          <p>Free Site Inspection</p>
+          <div className="benefit">
+            <span>✓</span>
+            <p>Cost-friendly solutions</p>
+          </div>
+
+          <div className="benefit">
+            <span>✓</span>
+            <p>No hidden charges</p>
+          </div>
         </div>
-
-        <div className="benefit">
-          <span>✔</span>
-          <p>Fast Response within 24 Hours</p>
-        </div>
-
-        <div className="benefit">
-          <span>✔</span>
-          <p>Professional HVAC Engineers</p>
-        </div>
-
-        <div className="benefit">
-          <span>✔</span>
-          <p>No Hidden Charges</p>
-        </div>
-
       </div>
+
+      <div className="quote-form-container">
+        {!quoteSuccess ? (
+          <form
+            className="quote-form"
+            onSubmit={handleQuoteSubmit}
+          >
+            <input
+              type="text"
+              name="fullName"
+              placeholder="Full Name"
+              value={quoteData.fullName}
+              onChange={handleQuoteChange}
+              required
+            />
+
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone Number"
+              value={quoteData.phone}
+              onChange={handleQuoteChange}
+              required
+            />
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={quoteData.email}
+              onChange={handleQuoteChange}
+              required
+            />
+
+            <input
+              type="text"
+              name="address"
+              placeholder="Location / Address"
+              value={quoteData.address}
+              onChange={handleQuoteChange}
+              required
+            />
+
+            <select
+              name="service"
+              value={quoteData.service}
+              onChange={handleQuoteChange}
+              required
+            >
+              <option value="" disabled>
+                Select Service Needed
+              </option>
+
+              <option value="Mechanical & Electrical Design">
+                Mechanical & Electrical Design
+              </option>
+
+              <option value="Aircon Supply & Installation">
+                Aircon Supply & Installation
+              </option>
+
+              <option value="Aircon Cleaning">
+                Aircon Cleaning
+              </option>
+
+              <option value="Aircon Repair & Troubleshooting">
+                Aircon Repair & Troubleshooting
+              </option>
+
+              <option value="Electrical Wiring & Installation">
+                Electrical Wiring & Installation
+              </option>
+
+              <option value="Preventive Maintenance">
+                Preventive Maintenance
+              </option>
+            </select>
+
+            <select
+              name="propertyType"
+              value={quoteData.propertyType}
+              onChange={handleQuoteChange}
+              required
+            >
+              <option value="" disabled>
+                Property Type
+              </option>
+
+              <option value="Residential">
+                Residential
+              </option>
+
+              <option value="Commercial">
+                Commercial
+              </option>
+
+              <option value="Industrial">
+                Industrial
+              </option>
+            </select>
+
+            <textarea
+              name="details"
+              placeholder="Describe your project, concern, equipment, quantity, or requested service..."
+              value={quoteData.details}
+              onChange={handleQuoteChange}
+              required
+            />
+
+            <button
+              type="submit"
+              disabled={quoteSubmitting}
+            >
+              {quoteSubmitting
+                ? "Submitting Request..."
+                : "Request Free Quote"}
+            </button>
+
+            {quoteError && (
+              <p className="quote-error">
+                {quoteError}
+              </p>
+            )}
+
+            <p className="quote-privacy-note">
+              🔒 Your information will only be used to process your quotation
+              request.
+            </p>
+          </form>
+        ) : (
+          <div className="quote-success">
+            <div className="quote-success-icon">
+              ✓
+            </div>
+
+            <h3>Thank You!</h3>
+
+            <p className="quote-success-main">
+              Your quote request has been received.
+            </p>
+
+            <p>
+              Our Ventara team will review your project details and contact
+              you shortly regarding the estimate and next steps.
+            </p>
+
+            <p className="quote-success-note">
+              The final quotation may depend on site conditions, equipment,
+              materials, quantity, and project requirements.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                setQuoteSuccess(false);
+                setPage("home");
+              }}
+            >
+              Return to Home
+            </button>
+
+            <button
+              type="button"
+              className="another-quote-btn"
+              onClick={() => {
+                setQuoteSuccess(false);
+                setQuoteError("");
+              }}
+            >
+              Request Another Quote
+            </button>
+          </div>
+        )}
+      </div>
+
     </div>
+  </section>
 
-
-    <form className="quote-form">
-
-      <input type="text" placeholder="Full Name" />
-
-      <input type="tel" placeholder="Phone Number" />
-
-      <input type="email" placeholder="Email Address" />
-
-      <input type="text" placeholder="Location / Address" />
-
-      <select>
-        <option>Select Service Needed</option>
-        <option>Mechanical & Electrical Design</option>
-        <option>Aircon Supply & Installation</option>
-        <option>Aircon Cleaning</option>
-        <option>Aircon Repair & Troubleshooting</option>
-        <option>Electrical Wiring & Installation</option>
-        <option>Preventive Maintenance</option>
-      </select>
-
-      <select>
-        <option>Property Type</option>
-        <option>Residential</option>
-        <option>Commercial</option>
-        <option>Industrial</option>
-      </select>
-
-      <textarea placeholder="Describe your project or concern..."></textarea>
-
-      <button type="submit">
-        Request Free Quote
-      </button>
-
-    </form>
-
-  </div>
-
-</section>
   )}
 {page==="projects" &&(
 <section id="projects" className="projects">
