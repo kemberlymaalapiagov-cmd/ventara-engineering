@@ -5,13 +5,9 @@ function App() {
   const [page, setPage] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Same Apps Script URL for bookings and quotes
   const WEB_APP_URL =
     "https://script.google.com/macros/s/AKfycbwgNjxVPal5SOhj_QZuU7kUFU69JlpkG3XysZCAHbKBAYxfZXqJ1Og4FhSA6wg4PPQ/exec";
 
-  /* =========================
-     BOOKING FORM
-  ========================= */
 
   const [bookingData, setBookingData] = useState({
     fullName: "",
@@ -162,6 +158,67 @@ function App() {
       setQuoteSubmitting(false);
     }
   };
+  const [reviewData, setReviewData] = useState({
+    name:"",
+    email:"",
+    rating:"",
+    message:""
+  });
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const handleReviewChange = (event) => {
+  const { name, value } = event.target;
+
+  setReviewData((previousData) => ({
+    ...previousData,
+    [name]: value
+  }));
+};
+
+const handleReviewSubmit = async (event) => {
+  event.preventDefault();
+
+  setReviewSubmitting(true);
+  setReviewSuccess(false);
+  setReviewError("");
+
+  try {
+    const formData = new URLSearchParams();
+
+    formData.append("requestType", "review");
+
+    Object.entries(reviewData).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    await fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: formData.toString()
+    });
+
+    setReviewSuccess(true);
+
+    setReviewData({
+      name: "",
+      email: "",
+      rating: "",
+      message: ""
+    });
+  } catch (error) {
+    console.error("Review submission failed:", error);
+
+    setReviewError(
+      "We could not submit your review. Please try again."
+    );
+  } finally {
+    setReviewSubmitting(false);
+  }
+};
     return (
     <div>
       <nav className="navbar">
@@ -866,6 +923,153 @@ function App() {
         )}
       </div>
     </div>
+  </section>
+)}
+{page === "review" && (
+  <section id="review" className="review">
+    <div className="section-title">
+      <p>CUSTOMER TESTIMONIALS</p>
+      <h2>What Our Clients Say</h2>
+      <span className="review-subtitle">
+        Real feedback from customers who trust Ventara Engineering Services.
+      </span>
+    </div>
+
+    <div className="testimonial-grid">
+      <div className="testimonial-card">
+        <div className="stars">★★★★★</div>
+        <p>
+          Very professional and reliable service. The technicians explained
+          everything clearly and completed the work neatly.
+        </p>
+        <h4>— Ventara Customer</h4>
+      </div>
+
+      <div className="testimonial-card">
+        <div className="stars">★★★★★</div>
+        <p>
+          Fast response, affordable service, and excellent workmanship.
+          Highly recommended for aircon maintenance.
+        </p>
+        <h4>— Ventara Customer</h4>
+      </div>
+
+      <div className="testimonial-card">
+        <div className="stars">★★★★★</div>
+        <p>
+          The team was professional, respectful, and careful while working
+          inside our property.
+        </p>
+        <h4>— Ventara Customer</h4>
+      </div>
+    </div>
+
+    {!reviewSuccess ? (
+      <form
+        className="review-form"
+        onSubmit={handleReviewSubmit}
+      >
+        <h3>Leave Your Review</h3>
+
+        <input
+          type="text"
+          name="name"
+          placeholder="Your Name"
+          value={reviewData.name}
+          onChange={handleReviewChange}
+          required
+        />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Your Email Address"
+          value={reviewData.email}
+          onChange={handleReviewChange}
+          required
+        />
+
+        <select
+          name="rating"
+          value={reviewData.rating}
+          onChange={handleReviewChange}
+          required
+        >
+          <option value="" disabled>
+            Rate Our Service
+          </option>
+
+          <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+          <option value="4">⭐⭐⭐⭐ Very Good</option>
+          <option value="3">⭐⭐⭐ Good</option>
+          <option value="2">⭐⭐ Fair</option>
+          <option value="1">⭐ Poor</option>
+        </select>
+
+        <textarea
+          name="message"
+          placeholder="Tell us about your experience..."
+          value={reviewData.message}
+          onChange={handleReviewChange}
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={reviewSubmitting}
+        >
+          {reviewSubmitting
+            ? "Submitting Review..."
+            : "Submit Review"}
+        </button>
+
+        {reviewError && (
+          <p className="review-error">
+            {reviewError}
+          </p>
+        )}
+
+        <p className="review-note">
+          Reviews may be checked before appearing publicly on the website.
+        </p>
+      </form>
+    ) : (
+      <div className="review-success">
+        <div className="review-success-icon">✓</div>
+
+        <h3>Thank You!</h3>
+
+        <p>
+          Your review has been received.
+        </p>
+
+        <p>
+          We appreciate you taking the time to share your experience with
+          Ventara Engineering Services.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => {
+            setReviewSuccess(false);
+            setPage("home");
+          }}
+        >
+          Return to Home
+        </button>
+
+        <button
+          type="button"
+          className="another-review-btn"
+          onClick={() => {
+            setReviewSuccess(false);
+            setReviewError("");
+          }}
+        >
+          Leave Another Review
+        </button>
+      </div>
+    )}
   </section>
 )}
 {page==="faq" && (
