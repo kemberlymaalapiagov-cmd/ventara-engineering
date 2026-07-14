@@ -1,9 +1,12 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import "./App.css";
 
 function App() {
   const [page, setPage] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [approvedReviews, setApprovedReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsLoadError, setReviewsLoadError] = useState("");
 
   const WEB_APP_URL =
     "https://script.google.com/macros/s/AKfycbwgNjxVPal5SOhj_QZuU7kUFU69JlpkG3XysZCAHbKBAYxfZXqJ1Og4FhSA6wg4PPQ/exec";
@@ -24,6 +27,42 @@ function App() {
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState("");
+
+  useEffect(() => {
+  const loadApprovedReviews = async () => {
+    setReviewsLoading(true);
+    setReviewsLoadError("");
+
+    try {
+      const response = await fetch(WEB_APP_URL, {
+        method: "GET",
+        redirect: "follow"
+      });
+
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error("The review response is not an array.");
+      }
+
+      setApprovedReviews(data);
+    } catch (error) {
+      console.error("Review loading error:", error);
+
+      setReviewsLoadError(
+        "Unable to load reviews."
+      );
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  loadApprovedReviews();
+}, []);
 
   const handleBookingChange = (event) => {
     const { name, value } = event.target;
@@ -218,6 +257,22 @@ const handleReviewSubmit = async (event) => {
   } finally {
     setReviewSubmitting(false);
   }
+};
+
+const openQuoteForService = (serviceName) => {
+  setQuoteData((previousData) => ({
+    ...previousData,
+    service: serviceName,
+  }));
+
+  setQuoteSuccess(false);
+  setQuoteError("");
+  setPage("requestquote");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 };
     return (
     <div>
@@ -585,40 +640,130 @@ const handleReviewSubmit = async (event) => {
   </section>
 
   )}
-{page==="projects" &&(
-<section id="projects" className="projects">
-  <div className="section-title">
-    <p>OUR WORK</p>
-    <h2>Recent Projects</h2>
-  </div>
+{page === "projects" && (
+  <section id="projects" className="projects-page">
+    <div className="projects-header">
+      <span className="projects-tag">OUR WORK</span>
 
-  <div className="project-grid">
-    <div className="project-card">
-      <img src="/images/project2.jpg" alt="Aircon installation" />
-      <div className="project-info">
-        <h3>Aircon Installation</h3>
-        <p>Residential air conditioning supply and installation.</p>
-      </div>
+      <h2>
+        Recent <span>Projects</span>
+      </h2>
+
+      <p>
+        Explore some of the HVAC and engineering projects completed by
+        Ventara Engineering Services.
+      </p>
     </div>
 
-    <div className="project-card">
-      <img src="/images/project3.jpg" alt="Electrical wiring" />
-      <div className="project-info">
-        <h3>Electrical Installation</h3>
-        <p>Safe electrical wiring and installation services.</p>
-      </div>
-    </div>
+    <div className="projects-grid">
 
-    <div className="project-card">
-      <img src="/images/project1.jpg" alt="Preventive maintenance" />
-      <div className="project-info">
-        <h3>Preventive Maintenance</h3>
-        <p>Maintenance service for reliable cooling performance.</p>
-      </div>
-    </div>
-  </div>
+      {/* Project 1 */}
+      <article className="project-card">
+        <div className="project-image-wrapper">
+          <img
+            src="/images/project2.jpg"
+            alt="Residential Aircon Installation"
+          />
+          <span className="project-category">
+            Aircon Installation
+          </span>
+        </div>
 
-</section>
+        <div className="project-content">
+          <h3>Residential Aircon Installation</h3>
+
+          <p className="project-location">
+            📍 La Union, Philippines
+          </p>
+
+          <p>
+            Complete air conditioning supply and installation with proper
+            positioning, testing, and commissioning.
+          </p>
+
+          <button
+            type="button"
+            onClick={() =>
+              openQuoteForService("Aircon Supply & Installation")
+            }
+          >
+            Inquire About This Service
+          </button>
+        </div>
+      </article>
+
+      {/* Project 2 */}
+      <article className="project-card">
+        <div className="project-image-wrapper">
+          <img
+            src="/images/project3.jpg"
+            alt="Electrical Wiring Installation"
+          />
+          <span className="project-category">
+            Electrical Work
+          </span>
+        </div>
+
+        <div className="project-content">
+          <h3>Electrical Wiring Installation</h3>
+
+          <p className="project-location">
+            📍 La Union, Philippines
+          </p>
+
+          <p>
+            Safe and organized electrical wiring installation completed
+            according to engineering standards.
+          </p>
+
+          <button
+            type="button"
+            onClick={() =>
+              openQuoteForService("Electrical Wiring & Installation")
+            }
+          >
+            Inquire About This Service
+          </button>
+        </div>
+      </article>
+
+      {/* Project 3 */}
+      <article className="project-card">
+        <div className="project-image-wrapper">
+          <img
+            src="/images/project1.jpg"
+            alt="Preventive Maintenance"
+          />
+          <span className="project-category">
+            Preventive Maintenance
+          </span>
+        </div>
+
+        <div className="project-content">
+          <h3>Preventive Maintenance</h3>
+
+          <p className="project-location">
+            📍 La Union, Philippines
+          </p>
+
+          <p>
+            Detailed cleaning, inspection, and performance testing to
+            keep air conditioning systems operating efficiently.
+          </p>
+
+          <button
+            type="button"
+            onClick={() =>
+              openQuoteForService("Preventive Maintenance")
+            }
+          >
+            Inquire About This Service
+          </button>
+        </div>
+      </article>
+
+    </div>
+  </section>
 )}
 {page === "about" && (
   <section id="about" className="about">
@@ -936,33 +1081,31 @@ const handleReviewSubmit = async (event) => {
     </div>
 
     <div className="testimonial-grid">
-      <div className="testimonial-card">
-        <div className="stars">★★★★★</div>
-        <p>
-          Very professional and reliable service. The technicians explained
-          everything clearly and completed the work neatly.
-        </p>
-        <h4>— Ventara Customer</h4>
-      </div>
+  {reviewsLoading ? (
+    <p className="reviews-status">Loading customer reviews...</p>
+  ) : reviewsLoadError ? (
+    <p className="reviews-status reviews-load-error">
+      {reviewsLoadError}
+    </p>
+  ) : approvedReviews.length === 0 ? (
+    <p className="reviews-status">
+      No approved customer reviews yet.
+    </p>
+  ) : (
+    approvedReviews.map((review, index) => (
+      <div className="testimonial-card" key={index}>
+        <div className="stars">
+          {"★".repeat(review.rating)}
+          {"☆".repeat(5 - review.rating)}
+        </div>
 
-      <div className="testimonial-card">
-        <div className="stars">★★★★★</div>
-        <p>
-          Fast response, affordable service, and excellent workmanship.
-          Highly recommended for aircon maintenance.
-        </p>
-        <h4>— Ventara Customer</h4>
-      </div>
+        <p>{review.review}</p>
 
-      <div className="testimonial-card">
-        <div className="stars">★★★★★</div>
-        <p>
-          The team was professional, respectful, and careful while working
-          inside our property.
-        </p>
-        <h4>— Ventara Customer</h4>
+        <h4>— {review.name}</h4>
       </div>
-    </div>
+    ))
+  )}
+</div>
 
     {!reviewSuccess ? (
       <form
@@ -1133,46 +1276,82 @@ const handleReviewSubmit = async (event) => {
 )}
 
 {page === "contact" && (
-  <section id="contact" className="contact-page">
-    <div className="section-title">
-      <p>CONTACT US</p>
-      <h2>Get In Touch</h2>
-    </div>
+  <section id="contact" className="contact-section">
+  <div className="section-header">
+    <span className="section-tag">CONTACT US</span>
+    <h2>Let's Work Together</h2>
+    <p>
+      Get in touch with us today for bookings, quotations, or inquiries.
+      We are always ready to help.
+    </p>
+  </div>
 
-    <div className="contact-grid">
-      <div className="contact-card">
-        <span>📞</span>
-        <h3>Call Us</h3>
-        <p>0956 513 8790</p>
-        <p>0969 411 5052</p>
-      </div>
+  <div className="contact-container">
 
-      <div className="contact-card">
-        <span>✉️</span>
-        <h3>Email</h3>
-        <p>ventaraengineeringservices@gmail.com</p>
-      </div>
+    <div className="contact-info">
 
       <div className="contact-card">
-        <span>📍</span>
-        <h3>Location</h3>
+        <h3>📍 Service Area</h3>
         <p>La Union and Nearby Provinces</p>
       </div>
 
       <div className="contact-card">
-        <span>🕒</span>
-        <h3>Business Hours</h3>
-        <p>Monday – Saturday</p>
-        <p>8:00 AM – 5:00 PM</p>
+        <h3>📞 Phone Numbers</h3>
+        <a href="tel:+639565138790">
+          0956 513 8790
+        </a>
+
+        <br />
+
+        <a href="tel:+639694115052">
+          0969 411 5052
+        </a>
       </div>
+
+      <div className="contact-card">
+        <h3>✉ Email</h3>
+        <a href="mailto:ventaraengineering@venataraph.com">
+          ventaraengineering@venataraph.com
+        </a>
+      </div>
+
+      <div className="contact-card">
+        <h3>📘 Facebook Page</h3>
+
+        <a
+          href="https://facebook.com/profile.php?id=61587195983439"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Ventara Engineering Services
+        </a>
+      </div>
+
     </div>
-  </section>
 
-)}
+    <div className="contact-map">
+
+      <iframe
+        title="Ventara Location"
+        src="https://www.google.com/maps/embed?pb=!3m2!1sen!2sca!4v1783975715335!5m2!1sen!2sca!6m8!1m7!1s_pPODP6XlabyXIaKjadyJg!2m2!1d16.85928691764884!2d120.4284051672024!3f257.3613812698402!4f-1.2402233895704455!5f0.7820865974627469" 
+        width="100%"
+        height="400"
+        style={{
+          border: 0,
+          borderRadius: "18px",
+        }}
+        loading="lazy"
+        allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+
+    </div>
+
   </div>
-);
-
-}
- 
+</section>
+)}
+    </div>
+  );
+} 
 
 export default App;
